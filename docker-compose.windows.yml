@@ -1,0 +1,33 @@
+services:
+  esp32c3-circuitpython:
+    build: ./esp32
+    volumes:
+      - ./esp32:/workspace
+      - /dev:/dev  # For device access (Linux/WSL)
+    environment:
+      - WINDOWS_HOST=true
+      - PYTHONPATH=/workspace
+    privileged: true  # Required for device access
+    command: >
+      sh -c "
+        echo 'ESP32-C3 CircuitPython Development Container Ready';
+        echo '';
+        echo 'Available tools:';
+        echo '  - esptool.py                 # ESP32 flashing tool';
+        echo '  - ampy                       # CircuitPython file transfer';
+        echo '  - python                     # Python interpreter';
+        echo '  - thonny                     # Python IDE';
+        echo '';
+        echo 'CircuitPython Development Workflow:';
+        echo '  1. Flash CircuitPython firmware to ESP32-C3';
+        echo '  2. Copy your code.py to the device';
+        echo '  3. Install required libraries to /lib';
+        echo '';
+        echo 'Note: On Windows, use host system for device access:';
+        echo '  - Flash: esptool.py --chip esp32c3 --port COM3 write_flash 0x0 firmware.bin';
+        echo '  - Copy files: ampy --port COM3 put code.py';
+        echo '';
+        echo 'Container ready for development...';
+        tail -f /dev/null
+      "
+    restart: unless-stopped

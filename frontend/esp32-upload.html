@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP32-C3 File Transfer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 2px solid #f0f0f0;
+            border-radius: 8px;
+        }
+        
+        .section h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        
+        .upload-area {
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            transition: border-color 0.3s;
+        }
+        
+        .upload-area:hover {
+            border-color: #4ECDC4;
+        }
+        
+        .upload-area.dragover {
+            border-color: #FF6B6B;
+            background-color: #fff5f5;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .upload-btn {
+            background: linear-gradient(45deg, #4ECDC4, #44A08D);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.2s;
+        }
+        
+        .upload-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .device-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .connect-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>ESP32-C3 File Transfer</h1>
+            <p>Upload files to your CircuitPython device</p>
+        </div>
+        
+        <div class="content">
+            <!-- Device Connection Section -->
+            <div class="section">
+                <h2>Device Connection</h2>
+                <div class="device-info">
+                    <strong>ESP32-C3 Status:</strong> <span id="deviceStatus">Disconnected</span><br>
+                    <strong>IP Address:</strong> <span id="deviceIP">Unknown</span>
+                </div>
+                <input type="text" id="esp32IP" placeholder="Enter ESP32-C3 IP address (e.g., 192.168.1.100)" value="">
+                <button class="connect-btn" onclick="connectToDevice()">Connect to Device</button>
+            </div>
+            
+            <!-- File Upload Section -->
+            <div class="section">
+                <h2>File Upload</h2>
+                <div id="uploadStatus"></div>
+                
+                <div class="upload-area" id="uploadArea">
+                    <p>📁 Drag and drop Python files here</p>
+                    <p>or</p>
+                    <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                        Choose Files
+                    </button>
+                    <input type="file" id="fileInput" class="file-input" accept=".py,.txt,.json" multiple onchange="handleFileSelect(event)">
+                </div>
+                
+                <div id="fileList"></div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="section">
+                <h2>Quick Actions</h2>
+                <button class="upload-btn" onclick="uploadCodePy()" style="margin-right: 10px;">Upload code.py</button>
+                <button class="upload-btn" onclick="restartDevice()">Restart Device</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let esp32IP = '';
+        
+        // Connect to ESP32-C3 device
+        async function connectToDevice() {
+            const ipInput = document.getElementById('esp32IP');
+            esp32IP = ipInput.value.trim();
+            
+            if (!esp32IP) {
+                showStatus('Please enter the ESP32-C3 IP address', 'error');
+                return;
+            }
+            
+            try {
+                showStatus('Connecting to device...', 'info');
+                const response = await fetch(`http://${esp32IP}/`, {
+                    method: 'GET',
+                    mode: 'no-cors'
+                });
+                
+                document.getElementById('deviceStatus').textContent = 'Connected';
+                document.getElementById('deviceIP').textContent = esp32IP;
+                showStatus('Successfully connected to ESP32-C3!', 'success');
+                
+            } catch (error) {
+                showStatus(`Connection failed: ${error.message}`, 'error');
+            }
+        }
+        
+        // Handle file selection
+        function handleFileSelect(event) {
+            const files = event.target.files;
+            displayFiles(files);
+        }
+        
+        // Display selected files
+        function displayFiles(files) {
+            const fileList = document.getElementById('fileList');
+            fileList.innerHTML = '';
+            
+            for (let file of files) {
+                const fileDiv = document.createElement('div');
+                fileDiv.innerHTML = `
+                    <div style="padding: 10px; margin: 5px 0; background: #f8f9fa; border-radius: 4px;">
+                        📄 ${file.name} (${(file.size / 1024).toFixed(1)} KB)
+                        <button onclick="uploadFile('${file.name}')" style="float: right; padding: 5px 10px;">Upload</button>
+                    </div>
+                `;
+                fileList.appendChild(fileDiv);
+            }
+        }
+        
+        // Upload individual file
+        async function uploadFile(filename) {
+            if (!esp32IP) {
+                showStatus('Please connect to device first', 'error');
+                return;
+            }
+            
+            const fileInput = document.getElementById('fileInput');
+            const file = Array.from(fileInput.files).find(f => f.name === filename);
+            
+            if (!file) {
+                showStatus('File not found', 'error');
+                return;
+            }
+            
+            try {
+                showStatus(`Uploading ${filename}...`, 'info');
+                
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                const response = await fetch(`http://${esp32IP}/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    showStatus(`${filename} uploaded successfully!`, 'success');
+                } else {
+                    showStatus(`Upload failed: ${response.statusText}`, 'error');
+                }
+                
+            } catch (error) {
+                showStatus(`Upload error: ${error.message}`, 'error');
+            }
+        }
+        
+        // Upload code.py from our project
+        async function uploadCodePy() {
+            if (!esp32IP) {
+                showStatus('Please connect to device first', 'error');
+                return;
+            }
+            
+            showStatus('This feature will upload the project code.py file', 'info');
+            // This would need backend integration to fetch the code.py from your project
+        }
+        
+        // Restart device
+        async function restartDevice() {
+            if (!esp32IP) {
+                showStatus('Please connect to device first', 'error');
+                return;
+            }
+            
+            try {
+                showStatus('Restarting device...', 'info');
+                await fetch(`http://${esp32IP}/restart`, { method: 'POST' });
+                showStatus('Device restart command sent', 'success');
+            } catch (error) {
+                showStatus(`Restart failed: ${error.message}`, 'error');
+            }
+        }
+        
+        // Show status message
+        function showStatus(message, type) {
+            const uploadStatus = document.getElementById('uploadStatus');
+            uploadStatus.innerHTML = `<div class="status ${type}">${message}</div>`;
+            
+            if (type === 'success' || type === 'info') {
+                setTimeout(() => {
+                    uploadStatus.innerHTML = '';
+                }, 3000);
+            }
+        }
+        
+        // Drag and drop functionality
+        const uploadArea = document.getElementById('uploadArea');
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            document.getElementById('fileInput').files = files;
+            displayFiles(files);
+        });
+    </script>
+</body>
+</html>

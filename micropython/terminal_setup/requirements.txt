@@ -1,0 +1,4 @@
+# Tools for setting up the local VS Code terminal
+# Create and Activate a Virtual Environment first, then run pip install (see LESSON2_README.md)
+mpremote
+esptool

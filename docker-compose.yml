@@ -1,0 +1,48 @@
+services:
+  keyword-api:
+    build: ./backend
+    ports:
+      - "9080:8000"
+    volumes:
+      - ./backend/data:/app/data
+      - ./backend:/app
+    environment:
+      - PYTHONPATH=/app
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  keyword-frontend:
+    image: nginx:alpine
+    ports:
+      - "9081:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+    depends_on:
+      - keyword-api
+    restart: unless-stopped
+
+  micropython-dev:
+    build: ./micropython
+    container_name: micropython-dev
+    volumes:
+      - ./micropython:/micropython
+    # Windows COM port mapping (COM3)
+    devices:
+      - /dev/ttyS2:/dev/ttyS2
+    stdin_open: true
+    tty: true
+    working_dir: /micropython
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: "no"
+    # Uncomment to auto-connect devices (may cause issues with other services)
+    # privileged: true
+
+networks:
+  default:
+    name: keyword-network
