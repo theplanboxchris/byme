@@ -1,0 +1,223 @@
+/* Moved from <style> tag in index.html */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    overflow: hidden;
+}
+
+.header {
+    background: #4f46e5;
+    color: white;
+    padding: 20px;
+    text-align: center;
+}
+
+.header h1 {
+    font-size: 24px;
+    margin-bottom: 5px;
+}
+
+.header p {
+    opacity: 0.8;
+    font-size: 14px;
+}
+
+.content {
+    padding: 20px;
+}
+
+.section {
+    margin-bottom: 30px;
+}
+
+.section h2 {
+    font-size: 18px;
+    margin-bottom: 15px;
+    color: #374151;
+}
+
+.add-keyword {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.add-keyword input, .add-keyword select {
+    flex: 1;
+    min-width: 120px;
+    padding: 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 16px;
+}
+
+.add-keyword button {
+    padding: 12px 20px;
+    background: #10b981;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.add-keyword button:hover {
+    background: #059669;
+}
+
+.filters {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.filters input, .filters select {
+    flex: 1;
+    min-width: 120px;
+    padding: 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+}
+
+.keyword-list {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+}
+
+.keyword-item {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.keyword-item:last-child {
+    border-bottom: none;
+}
+
+.keyword-item input[type="checkbox"] {
+    margin-right: 12px;
+    width: 18px;
+    height: 18px;
+}
+
+.keyword-info {
+    flex: 1;
+}
+
+.keyword-word {
+    font-weight: 500;
+    color: #374151;
+}
+
+.keyword-category {
+    font-size: 12px;
+    color: #6b7280;
+    background: #f3f4f6;
+    padding: 2px 8px;
+    border-radius: 12px;
+    display: inline-block;
+    margin-top: 4px;
+}
+
+.selected-count {
+    background: #dbeafe;
+    color: #1e40af;
+    padding: 15px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    text-align: center;
+    font-weight: 500;
+}
+
+.download-section {
+    text-align: center;
+}
+
+.download-btn {
+    background: #dc2626;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 8px;
+    font-size: 18px;
+    cursor: pointer;
+    font-weight: 500;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.download-btn:hover {
+    background: #b91c1c;
+}
+
+.download-btn:disabled {
+    background: #9ca3af;
+    cursor: not-allowed;
+}
+
+.instructions {
+    background: #fef3c7;
+    border: 1px solid #f59e0b;
+    border-radius: 6px;
+    padding: 15px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.instructions h3 {
+    color: #92400e;
+    margin-bottom: 10px;
+}
+
+.instructions ol {
+    margin-left: 20px;
+}
+
+.loading {
+    text-align: center;
+    padding: 20px;
+    color: #6b7280;
+}
+
+.error {
+    background: #fef2f2;
+    border: 1px solid #f87171;
+    color: #dc2626;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+}
+
+@media (max-width: 480px) {
+    .add-keyword {
+        flex-direction: column;
+    }
+    .filters {
+        flex-direction: column;
+    }
+    .add-keyword input, .add-keyword select, .add-keyword button {
+        width: 100%;
+    }
+}

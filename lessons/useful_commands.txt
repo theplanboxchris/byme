@@ -1,0 +1,51 @@
+# erase flash
+esptool --port COM3 erase_flash
+# copy latest micropython .bin
+esptool --port COM3 write_flash -z 0x0 micropython/firmware_micropython_latest.bin
+
+# copy files
+mpremote connect COM3 cp micropython/main.py :main.py
+mpremote connect COM3 cp micropython/ble_utils.py :ble_utils.py
+mpremote connect COM3 cp keywords.json :keywords.json
+mpremote connect COM3 cp micropython/ble_defs.py :ble_defs.py
+mpremote connect COM3 cp micropython/modality_write.py :modality_write.py
+mpremote connect COM3 cp micropython/modality_peer.py :modality_peer.py
+
+# Powershell scripts
+# Run .ps1 script to copy all specified files 
+micropython\upload_esp32.ps1
+
+# run main.py locally
+mpremote connect COM3 run micropython/main.py
+mpremote connect COM5 run micropython/main.py
+
+# list all files
+mpremote connect COM3 fs ls
+
+# read file
+mpremote connect COM5 fs cat keywords.json
+mpremote connect COM3 fs cat keywords.json
+
+# run a python script line
+mpremote connect auto repl
+
+
+
+
+# Delete a file
+mpremote connect COM3 fs rm main.py
+mpremote connect COM5 fs rm keywords.json
+mpremote connect COM3 fs rm ble_utils.py
+mpremote connect COM3 fs rm modality_write_debug.py
+mpremote connect COM3 fs rm modality_peer_debug.py
+
+# Powershell scripts
+# Run .ps1 script to copy specified files 
+micropython\upload_esp32.ps1
+
+# DOCKER COMMANDS
+# Build the service
+docker-compose build micropython-dev
+
+# Start interactive shell
+docker-compose run --rm micropython-dev bash

@@ -1,8 +1,10 @@
 
 ## 23/10/25
 
-- Review front end code that allows the keywords file to be updated
-
+- Reviewed front end code that allows the keywords file to be updated
+- Edited code to work with frontend
+- TO DO - create JSON files of the required structure and save to back end
+- Realised a few [robpems with the architecture and need to reconsider. The client and the peer code needed to be integrated]
 
 ## 22/10/25
 

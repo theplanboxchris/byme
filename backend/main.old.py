@@ -1,3 +1,7 @@
+# Archived version of main.py
+# This file is kept for reference and rollback purposes.
+
+# ...existing code from main.py will be here...
 from fastapi import FastAPI, HTTPException, Depends, Query
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, func

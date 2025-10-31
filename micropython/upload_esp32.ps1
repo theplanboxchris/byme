@@ -1,6 +1,6 @@
 $ports = @("COM3", "COM5")
 $sourceDir = "micropython"
-$files = @("main.py")
+$files = @("main.py", "ble_utils.py")
 
 foreach ($port in $ports) {
     Write-Host "`nUploading files to ESP32 on $port..."
@@ -11,4 +11,4 @@ foreach ($port in $ports) {
     Write-Host "Upload complete on $port!"
 }
 
-mpremote connect COM3 run micropython/main.py
+#mpremote connect COM3 run micropython/main.py

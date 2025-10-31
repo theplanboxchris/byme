@@ -1,3 +1,37 @@
+# BLE Keyword Transfer System
+
+## Introduction
+
+This project enables robust transfer and matching of keyword data between devices using Bluetooth Low Energy (BLE). It consists of a FastAPI backend, a React frontend, and MicroPython-based BLE peripherals. The system allows users to select keywords, transfer them to a device, and detect nearby devices with matching keywords using BLE advertising and scan responses.
+
+## System Overview
+
+- **Backend (FastAPI):** Manages group, category, and keyword data. Exposes APIs for keyword selection and hash generation. Persists selected keywords in a SQLite database.
+- **Frontend (React):** Provides a user interface for selecting keywords. Uses Web Bluetooth API to transfer selected keywords to BLE devices. Sends keywords as a JSON dictionary, chunked and terminated with `<EOF>`.
+- **MicroPython BLE Peripheral:** Receives keywords as a JSON dictionary via BLE GATT write. Stores keywords locally and updates BLE advertising payload. Advertises device name and keywords as manufacturer-specific data in scan response packets. Scans for nearby devices, decodes manufacturer data, and matches received keywords against its own.
+
+## BLE Data Flow
+
+- **Advertising Packet:** Contains device name (`NIMI_DEV_xxxx`) and optional service UUIDs.
+- **Scan Response Packet:** Contains manufacturer-specific data (packed keyword indexes as 4-byte little-endian integers).
+- **Keyword Transfer:** Frontend sends selected keywords to the device, which updates its advertising payload.
+
+## Keyword Matching Logic
+
+- Each device maintains a dictionary of keywords (`{ "1432244": "Keyword1", ... }`).
+- When scanning, devices decode manufacturer data from scan responses into a list of integers.
+- Devices compare received keyword indexes against their own and report matches.
+
+## Usage Notes
+
+- Devices must scan with `active=True` to receive scan responses.
+- Manufacturer data is limited in size; only a subset of keywords may be advertised.
+- The ignore logic prevents repeated processing of the same device within a short interval.
+
+## Extensibility
+
+- Easily add new keyword categories or device features.
+- Can be adapted for other BLE data transfer scenarios.
 # Keyword Management System & ESP32-C3 P2P BLE Device
 
 A complete peer-to-peer BLE keyword matching system with:
