@@ -44,11 +44,11 @@ A complete peer-to-peer BLE keyword matching system with:
 ### 🌐 Backend API (`/backend`)
 FastAPI server for keyword management with SQLite database
 
-### 🖥️ Frontend (`/frontend`) 
+### 🖥️ Frontend (`/frontend-react`) 
 Web interface for keyword selection and device management
 
-### 🔧 ESP32-C3 Device (`/arduino-esp32c3`)
-Arduino-based firmware for Adafruit QT Py ESP32-C3:
+### 🔧 ESP32-C3 Device (`/micropython`)
+micropython-based firmware for Adafruit QT Py ESP32-C3:
 - BLE peer-to-peer communication
 - Real-time keyword matching
 - NeoPixel visual feedback
@@ -61,29 +61,43 @@ Arduino-based firmware for Adafruit QT Py ESP32-C3:
 # Start all services
 docker-compose up --build -d
 
-# Start ESP32-C3 development environment
-cd arduino-esp32c3
-./dev.bat start        # Windows
-./dev.sh start         # Linux/Mac
+# Start frontend-react development environment
+cd frontend-react
+npm run dev       # Windows
+
 ```
 
-### ESP32-C3 Development Only
+### Powershell scripts
 ```bash
-cd arduino-esp32c3
+# copy specified files to COM3/COM5 for development
+micropython\upload_esp32.ps1
 
-# Start development container
-./dev.bat start
+# run main.py on either device
+mpremote connect COM3 run micropython/main.py
+mpremote connect COM5 run micropython/main.py
 
-# Build firmware
-./dev.bat build
+# copy individual files
+mpremote connect COM3 cp micropython/main.py :main.py
+mpremote connect COM3 cp micropython/ble_utils.py :ble_utils.py
+mpremote connect COM3 cp keywords.json :keywords.json
 
-# Flash to device (COM3)
-./dev.bat flash COM3
+# Delete a file
+mpremote connect COM3 fs rm main.py
+mpremote connect COM5 fs rm keywords.json
+mpremote connect COM3 fs rm ble_utils.py
 
-# Monitor serial output
-./dev.bat monitor COM3
+# list all files
+mpremote connect COM3 fs ls
+
+# read file
+mpremote connect COM5 fs cat keywords.json
+mpremote connect COM3 fs cat keywords.json
+
+# run a python script line
+mpremote connect auto repl
 ```
 
+## REVIEW THIS ADVICE!
 ### Option 1: Docker (Recommended)
 
 ```bash
